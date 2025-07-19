@@ -5,14 +5,14 @@ const uploadService = require('../services/uploadService');
 
 const router = express.Router();
 
-// Single file upload
-router.post('/single', auth, upload.single('file'), async (req, res) => {
+// Single file upload (public, no auth)
+router.post('/', upload.single('file'), async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ error: 'No file uploaded' });
     }
     const uploadResult = await uploadService.processAndUpload(req.file);
-    res.json({ success: true, file: uploadResult });
+    res.json({ url: uploadResult.url });
   } catch (error) {
     res.status(500).json({ error: 'Upload failed', message: error.message });
   }
