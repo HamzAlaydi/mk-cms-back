@@ -9,7 +9,8 @@ router.get('/public', projectController.getAllPublic);
 router.get('/admin/:id', auth, projectController.getOneAdmin);
 router.get('/public/:id', projectController.getOnePublic);
 router.post('/', auth, projectController.create);
-router.put('/:id', auth, projectController.update);
-router.delete('/:id', auth, projectController.remove);
+router.patch("/:id", projectController.update);
+router.delete("/:id", auth, projectController.remove);
+router.get("/stats/admin", auth, projectController.getStats);
 
 module.exports = router; 

@@ -1,15 +1,16 @@
 const express = require('express');
 const auth = require('../middleware/auth');
-const partnershipsController = require('../controllers/partnershipsController');
+const partnershipController = require("../controllers/partnershipsController");
 
 const router = express.Router();
 
-router.get('/admin', auth, partnershipsController.getAllAdmin);
-router.get('/public', partnershipsController.getAllPublic);
-router.get('/admin/:id', auth, partnershipsController.getOneAdmin);
-router.get('/public/:id', partnershipsController.getOnePublic);
-router.post('/', auth, partnershipsController.create);
-router.put('/:id', auth, partnershipsController.update);
-router.delete('/:id', auth, partnershipsController.remove);
+router.get("/admin", auth, partnershipController.getAllAdmin);
+router.get("/public", partnershipController.getAllPublic);
+router.get("/admin/:id", auth, partnershipController.getOneAdmin);
+router.get("/public/:id", partnershipController.getOnePublic);
+router.post("/", auth, partnershipController.create);
+router.patch("/:id", partnershipController.update);
+router.delete("/:id", auth, partnershipController.remove);
+router.get("/stats/admin", auth, partnershipController.getStats);
 
 module.exports = router; 

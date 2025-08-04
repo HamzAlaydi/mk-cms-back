@@ -40,7 +40,7 @@ async function setupEnvironment() {
   const awsBucket = await question('AWS S3 Bucket Name: ');
   
   // Server
-  const port = await question('Server Port (default: 3001): ') || '3001';
+  const port = (await question("Server Port (default: 3000): ")) || "3000";
   const nodeEnv = await question('Node Environment (default: development): ') || 'development';
   
   // Admin

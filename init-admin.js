@@ -64,7 +64,7 @@ async function initializeAdmin() {
     console.log('\n📝 You can now:');
     console.log('1. Start the server: npm run dev');
     console.log('2. Login to admin panel with the credentials above');
-    console.log('3. Access the API at http://localhost:3001/api');
+    console.log("3. Access the API at http://localhost:3000/api");
 
   } catch (error) {
     console.error('❌ Error initializing admin:', error.message);

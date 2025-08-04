@@ -61,9 +61,45 @@ exports.update = async (req, res) => {
 exports.remove = async (req, res) => {
   try {
     const certification = await Certification.findByIdAndDelete(req.params.id);
-    if (!certification) return res.status(404).json({ error: 'Certification not found' });
-    res.json({ message: 'Certification deleted' });
+    if (!certification)
+      return res.status(404).json({ error: "Certification not found" });
+    res.json({ message: "Certification deleted" });
   } catch (error) {
-    res.status(500).json({ error: 'Failed to delete certification' });
+    res.status(500).json({ error: "Failed to delete certification" });
+  }
+};
+
+// Stats endpoint for admin dashboard
+exports.getStats = async (req, res) => {
+  try {
+    const totalCertifications = await Certification.countDocuments();
+    const publishedCertifications = await Certification.countDocuments({
+      status: "published",
+    });
+    const draftCertifications = await Certification.countDocuments({
+      status: "draft",
+    });
+    const featuredCertifications = await Certification.countDocuments({
+      featured: true,
+    });
+
+    // Get certifications created this month
+    const startOfMonth = new Date();
+    startOfMonth.setDate(1);
+    startOfMonth.setHours(0, 0, 0, 0);
+
+    const certificationsThisMonth = await Certification.countDocuments({
+      createdAt: { $gte: startOfMonth },
+    });
+
+    res.json({
+      total: totalCertifications,
+      published: publishedCertifications,
+      draft: draftCertifications,
+      featured: featuredCertifications,
+      thisMonth: certificationsThisMonth,
+    });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch certification statistics" });
   }
 }; 

@@ -11,7 +11,9 @@ const projectRoutes = require('./routes/projects');
 const certificationRoutes = require('./routes/certifications');
 const partnershipRoutes = require('./routes/partnerships');
 const newsRoutes = require('./routes/news');
-// const awardRoutes = require('./routes/awards');
+const awardRoutes = require('./routes/awards');
+const careerRoutes = require('./routes/careers');
+const pressRoutes = require('./routes/press');
 const uploadRoutes = require('./routes/upload');
 
 const app = express();
@@ -37,7 +39,9 @@ app.use('/api/projects', projectRoutes);
 app.use('/api/certifications', certificationRoutes);
 app.use('/api/partnerships', partnershipRoutes);
 app.use('/api/news', newsRoutes);
-// app.use('/api/awards', awardRoutes);
+app.use('/api/awards', awardRoutes);
+app.use('/api/careers', careerRoutes);
+app.use('/api/press', pressRoutes);
 app.use('/api/upload', uploadRoutes);
 
 app.get('/api/health', (req, res) => res.json({ status: 'ok' }));

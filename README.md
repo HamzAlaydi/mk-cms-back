@@ -46,7 +46,7 @@ ADMIN_USERNAME=admin
 ADMIN_PASSWORD=admin123
 
 # Server Configuration
-PORT=3001
+PORT=3000
 NODE_ENV=development
 
 # File Upload Limits
@@ -223,7 +223,7 @@ npm run dev
 ### Environment Variables
 ```env
 NODE_ENV=development
-PORT=3001
+PORT=3000
 MONGODB_URI=mongodb://localhost:27017/mkgroup-website
 JWT_SECRET=your-jwt-secret
 AWS_ACCESS_KEY_ID=your-aws-key
@@ -235,13 +235,13 @@ AWS_S3_BUCKET=your-bucket-name
 ### Testing
 ```bash
 # Health check
-curl http://localhost:3001/api/health
+curl http://localhost:3000/api/health
 
 # Initialize admin
-curl -X POST http://localhost:3001/api/auth/init
+curl -X POST http://localhost:3000/api/auth/init
 
 # Login
-curl -X POST http://localhost:3001/api/auth/login \
+curl -X POST http://localhost:3000/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{"username":"admin","password":"admin123"}'
 ```
@@ -251,7 +251,7 @@ curl -X POST http://localhost:3001/api/auth/login \
 ### Environment Variables
 ```env
 NODE_ENV=production
-PORT=3001
+PORT=3000
 MONGODB_URI=mongodb://your-production-db
 JWT_SECRET=your-production-jwt-secret
 AWS_ACCESS_KEY_ID=your-production-aws-key
@@ -292,7 +292,7 @@ pm2 startup
 
 4. **Port Already in Use**
    - Change PORT in `.env`
-   - Kill existing process: `lsof -ti:3001 | xargs kill`
+   - Kill existing process: `lsof -ti:3000 | xargs kill`
 
 ### Logs
 - Application logs: Check terminal output

@@ -61,9 +61,45 @@ exports.update = async (req, res) => {
 exports.remove = async (req, res) => {
   try {
     const partnership = await Partnership.findByIdAndDelete(req.params.id);
-    if (!partnership) return res.status(404).json({ error: 'Partnership not found' });
-    res.json({ message: 'Partnership deleted' });
+    if (!partnership)
+      return res.status(404).json({ error: "Partnership not found" });
+    res.json({ message: "Partnership deleted" });
   } catch (error) {
-    res.status(500).json({ error: 'Failed to delete partnership' });
+    res.status(500).json({ error: "Failed to delete partnership" });
+  }
+};
+
+// Stats endpoint for admin dashboard
+exports.getStats = async (req, res) => {
+  try {
+    const totalPartnerships = await Partnership.countDocuments();
+    const publishedPartnerships = await Partnership.countDocuments({
+      status: "published",
+    });
+    const draftPartnerships = await Partnership.countDocuments({
+      status: "draft",
+    });
+    const featuredPartnerships = await Partnership.countDocuments({
+      featured: true,
+    });
+
+    // Get partnerships created this month
+    const startOfMonth = new Date();
+    startOfMonth.setDate(1);
+    startOfMonth.setHours(0, 0, 0, 0);
+
+    const partnershipsThisMonth = await Partnership.countDocuments({
+      createdAt: { $gte: startOfMonth },
+    });
+
+    res.json({
+      total: totalPartnerships,
+      published: publishedPartnerships,
+      draft: draftPartnerships,
+      featured: featuredPartnerships,
+      thisMonth: partnershipsThisMonth,
+    });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch partnership statistics" });
   }
 }; 

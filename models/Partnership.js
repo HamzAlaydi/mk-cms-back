@@ -8,6 +8,13 @@ const fileSchema = new mongoose.Schema({
   uploadedAt: { type: Date, default: Date.now }
 }, { _id: false });
 
+const attachmentSchema = new mongoose.Schema({
+  type: { type: String, required: true, enum: ['image', 'video', 'document'] },
+  url: { type: String, required: true },
+  title: { type: String, required: true },
+  description: String,
+}, { _id: false });
+
 const partnerInfoSchema = new mongoose.Schema({
   name: { type: String, required: true },
   founded: String,
@@ -22,7 +29,7 @@ const partnerInfoSchema = new mongoose.Schema({
 const partnerLinkSchema = new mongoose.Schema({
   title: { type: String, required: true },
   url: { type: String, required: true },
-  type: { type: String, required: true },
+  type: { type: String, required: true, enum: ['website', 'press', 'research', 'case-study'] },
 }, { _id: false });
 
 const timelineSchema = new mongoose.Schema({
@@ -44,17 +51,13 @@ const partnershipSchema = new mongoose.Schema({
   nextMilestone: String,
   status: { type: String, required: true, enum: ['active', 'inactive', 'completed', 'cancelled'] },
   priority: { type: String, required: true, enum: ['low', 'medium', 'high'] },
+  image: fileSchema, // Poster image
   partnerInformation: partnerInfoSchema,
   partnerLinks: [partnerLinkSchema],
   timeline: [timelineSchema],
   achievements: [achievementSchema],
-  attachments: [fileSchema],
-  website: String,
-  contact: String,
-  focusAreas: [{ type: String }],
-  image: fileSchema,
-  documents: [fileSchema],
-  endDate: Date,
+  attachments: [attachmentSchema],
+  youtubeLinks: [{ type: String }], // Array of YouTube URLs
 }, { timestamps: true });
 
 module.exports = mongoose.model('Partnership', partnershipSchema); 

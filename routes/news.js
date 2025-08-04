@@ -9,7 +9,7 @@ router.get('/public', newsController.getAllPublic);
 router.get('/admin/:id', auth, newsController.getOneAdmin);
 router.get('/public/:id', newsController.getOnePublic);
 router.post('/', auth, newsController.create);
-router.put('/:id', auth, newsController.update);
+router.patch('/:id', auth, newsController.update);
 router.delete('/:id', auth, newsController.remove);
 
 module.exports = router; 
