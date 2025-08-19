@@ -39,6 +39,30 @@ class UploadService {
     }
   }
 
+  async uploadCVToS3(fileBuffer, fileName, mimeType) {
+    const key = `cv/${Date.now()}-${fileName}`;
+    const command = new PutObjectCommand({
+      Bucket: BUCKET_NAME,
+      Key: key,
+      Body: fileBuffer,
+      ContentType: mimeType,
+      ACL: 'public-read',
+      CacheControl: 'max-age=31536000',
+    });
+    try {
+      await s3.send(command);
+      return {
+        url: `https://${BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${key}`,
+        filename: fileName,
+        mimeType: mimeType,
+        size: fileBuffer.length
+      };
+    } catch (error) {
+      console.error('CV S3 upload error:', error);
+      throw new Error('Failed to upload CV to S3');
+    }
+  }
+
   async optimizeImage(fileBuffer, mimeType) {
     try {
       let sharpInstance = sharp(fileBuffer);
@@ -95,6 +119,12 @@ class UploadService {
       const fileName = `${uuidv4()}${fileExtension}`;
       let processedBuffer = buffer;
       let finalMimeType = mimetype;
+      
+      // Check if this is a CV file (PDF, DOC, DOCX)
+      const isCVFile = mimetype === 'application/pdf' || 
+                      mimetype === 'application/msword' || 
+                      mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+      
       if (mimetype.startsWith('image/')) {
         processedBuffer = await this.optimizeImage(buffer, mimetype);
       } else if (mimetype.startsWith('video/')) {
@@ -107,15 +137,30 @@ class UploadService {
         fs.unlinkSync(tempInputPath);
         fs.unlinkSync(tempOutputPath);
       }
-      const url = await this.uploadToS3(processedBuffer, fileName, finalMimeType);
-      return {
-        filename: fileName,
-        originalName: originalname,
-        mimeType: finalMimeType,
-        size: processedBuffer.length,
-        url: url,
-        uploadedAt: new Date()
-      };
+      
+      // Use CV folder for CV files, regular uploads folder for others
+      let url;
+      if (isCVFile) {
+        url = await this.uploadCVToS3(processedBuffer, fileName, finalMimeType);
+        return {
+          filename: fileName,
+          originalName: originalname,
+          mimeType: finalMimeType,
+          size: processedBuffer.length,
+          url: url.url,
+          uploadedAt: new Date()
+        };
+      } else {
+        url = await this.uploadToS3(processedBuffer, fileName, finalMimeType);
+        return {
+          filename: fileName,
+          originalName: originalname,
+          mimeType: finalMimeType,
+          size: processedBuffer.length,
+          url: url,
+          uploadedAt: new Date()
+        };
+      }
     } catch (error) {
       console.error('File processing error:', error);
       throw new Error('Failed to process and upload file');

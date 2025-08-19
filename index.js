@@ -15,6 +15,7 @@ const awardRoutes = require('./routes/awards');
 const careerRoutes = require('./routes/careers');
 const pressRoutes = require('./routes/press');
 const uploadRoutes = require('./routes/upload');
+const candidateRoutes = require('./routes/candidates');
 
 const app = express();
 
@@ -43,6 +44,20 @@ app.use('/api/awards', awardRoutes);
 app.use('/api/careers', careerRoutes);
 app.use('/api/press', pressRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/candidates', candidateRoutes);
+
+// Log mounted routes for debugging
+console.log('Mounted routes:');
+console.log('- /api/auth');
+console.log('- /api/projects');
+console.log('- /api/certifications');
+console.log('- /api/partnerships');
+console.log('- /api/news');
+console.log('- /api/awards');
+console.log('- /api/careers');
+console.log('- /api/press');
+console.log('- /api/upload');
+console.log('- /api/candidates');
 
 app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
 

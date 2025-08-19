@@ -12,7 +12,7 @@ router.post('/', upload.single('file'), async (req, res) => {
       return res.status(400).json({ error: 'No file uploaded' });
     }
     const uploadResult = await uploadService.processAndUpload(req.file);
-    res.json({ url: uploadResult.url });
+    res.json(uploadResult);
   } catch (error) {
     res.status(500).json({ error: 'Upload failed', message: error.message });
   }
