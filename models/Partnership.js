@@ -58,6 +58,7 @@ const partnershipSchema = new mongoose.Schema({
   achievements: [achievementSchema],
   attachments: [attachmentSchema],
   youtubeLinks: [{ type: String }], // Array of YouTube URLs
+  lang: { type: String, enum: ['en', 'ar'], default: 'en', index: true },
 }, { timestamps: true });
 
 module.exports = mongoose.model('Partnership', partnershipSchema); 

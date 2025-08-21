@@ -15,6 +15,7 @@ const pressSchema = new mongoose.Schema({
   youtubeLinks: [{ type: String }],
   documents: [{ type: String }],
   relatedArticles: [{ type: String }],
+  lang: { type: String, enum: ['en', 'ar'], default: 'en', index: true },
 }, { timestamps: true });
 
 module.exports = mongoose.model('Press', pressSchema); 

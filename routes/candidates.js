@@ -1,7 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const CandidateResume = require('../models/CandidateResume');
-const Career = require('../models/Career');
+const { getModel, getBothLanguageModels } = require('../models/modelFactory');
+
+// Helper function to get language from request
+const getLanguage = (req) => {
+  return req.headers['accept-language'] || req.query.lang || req.body.lang || 'en';
+};
 
 // Test route to verify the endpoint is working
 router.get('/test', (req, res) => {
@@ -37,7 +42,9 @@ router.get('/test-model', async (req, res) => {
 // POST /api/candidates - Store candidate application
 router.post('/', async (req, res) => {
   try {
-    console.log('Received request body:', req.body);
+    console.log('=== CANDIDATE APPLICATION REQUEST ===');
+    console.log('Request headers:', req.headers);
+    console.log('Request body:', req.body);
     const { jobId, applicantName, cvFile } = req.body;
     
     console.log('Extracted data:', { jobId, applicantName, cvFile });
@@ -56,14 +63,89 @@ router.post('/', async (req, res) => {
       });
     }
 
-    // Verify the job exists
-    const job = await Career.findById(jobId);
+    // Get language from request
+    const language = getLanguage(req);
+    console.log('Language detected:', language);
+    console.log('All headers:', JSON.stringify(req.headers, null, 2));
+
+    // Try to find the job in both language collections
+    let job = null;
+    const bothModels = getBothLanguageModels('career');
+    console.log('Available models:', Object.keys(bothModels));
+    
+    // First try the detected language
+    try {
+      const primaryModel = bothModels[language];
+      console.log(`Trying to find job ${jobId} in ${language} collection using model:`, primaryModel.modelName);
+      job = await primaryModel.findById(jobId);
+      console.log(`Job found in ${language} collection:`, job ? 'Yes' : 'No');
+      if (job) {
+        console.log('Job details:', {
+          id: job._id,
+          title: job.title,
+          department: job.department,
+          lang: job.lang
+        });
+      }
+    } catch (error) {
+      console.log(`Error finding job in ${language} collection:`, error.message);
+    }
+    
+    // If not found, try the other language
     if (!job) {
+      const otherLanguage = language === 'en' ? 'ar' : 'en';
+      try {
+        const secondaryModel = bothModels[otherLanguage];
+        console.log(`Trying to find job ${jobId} in ${otherLanguage} collection using model:`, secondaryModel.modelName);
+        job = await secondaryModel.findById(jobId);
+        console.log(`Job found in ${otherLanguage} collection:`, job ? 'Yes' : 'No');
+        if (job) {
+          console.log('Job details:', {
+            id: job._id,
+            title: job.title,
+            department: job.department,
+            lang: job.lang
+          });
+        }
+      } catch (error) {
+        console.log(`Error finding job in ${otherLanguage} collection:`, error.message);
+      }
+    }
+
+    if (!job) {
+      console.log('Job not found in any language collection');
+      console.log('Job ID being searched:', jobId);
+      console.log('Job ID type:', typeof jobId);
+      console.log('Available models:', Object.keys(bothModels));
+      
+      // Let's also check if there are any jobs in the collections
+      try {
+        const enCount = await bothModels.en.countDocuments();
+        const arCount = await bothModels.ar.countDocuments();
+        console.log(`Total jobs in English collection: ${enCount}`);
+        console.log(`Total jobs in Arabic collection: ${arCount}`);
+        
+        // Show a few sample jobs from each collection
+        const enJobs = await bothModels.en.find().limit(3).select('_id title');
+        const arJobs = await bothModels.ar.find().limit(3).select('_id title');
+        console.log('Sample English jobs:', enJobs);
+        console.log('Sample Arabic jobs:', arJobs);
+      } catch (error) {
+        console.log('Error checking collection counts:', error.message);
+      }
+      
       return res.status(404).json({
         success: false,
         message: 'Job not found'
       });
     }
+
+    console.log('Job found:', {
+      id: job._id,
+      title: job.title,
+      department: job.department,
+      language: job.lang || language
+    });
 
     // Check if job is still active
     if (!job.isActive) {
@@ -164,15 +246,57 @@ router.get('/', async (req, res) => {
     console.log('Final query:', query);
     
     const applications = await CandidateResume.find(query)
-      .populate('jobId', 'title department location')
       .sort({ appliedAt: -1 });
 
-    console.log('Found applications:', applications.length);
-    console.log('Applications:', applications);
+    // Enhance applications with job details from both language collections
+    const enhancedApplications = await Promise.all(
+      applications.map(async (application) => {
+        try {
+          // Try to find job details in both language collections
+          const bothModels = getBothLanguageModels('career');
+          let jobDetails = null;
+          
+          // Try English first
+          try {
+            jobDetails = await bothModels.en.findById(application.jobId)
+              .select('title department location lang');
+          } catch (error) {
+            console.log('Error finding job in English collection:', error.message);
+          }
+          
+          // If not found, try Arabic
+          if (!jobDetails) {
+            try {
+              jobDetails = await bothModels.ar.findById(application.jobId)
+                .select('title department location lang');
+            } catch (error) {
+              console.log('Error finding job in Arabic collection:', error.message);
+            }
+          }
+          
+          // Return enhanced application with job details
+          return {
+            ...application.toObject(),
+            jobDetails: jobDetails ? {
+              title: jobDetails.title,
+              department: jobDetails.department,
+              location: jobDetails.location,
+              lang: jobDetails.lang
+            } : null
+          };
+        } catch (error) {
+          console.log('Error enhancing application:', error.message);
+          return application.toObject();
+        }
+      })
+    );
+
+    console.log('Found applications:', enhancedApplications.length);
+    console.log('Enhanced applications:', enhancedApplications);
 
     res.json({
       success: true,
-      data: applications
+      data: enhancedApplications
     });
   } catch (error) {
     console.error('Error fetching applications:', error);
@@ -201,7 +325,7 @@ router.put('/:id', async (req, res) => {
       id,
       { status },
       { new: true }
-    ).populate('jobId', 'title department location');
+    );
     
     if (!candidateResume) {
       return res.status(404).json({
@@ -209,11 +333,47 @@ router.put('/:id', async (req, res) => {
         message: 'Candidate not found'
       });
     }
+
+    // Enhance with job details from both language collections
+    let jobDetails = null;
+    try {
+      const bothModels = getBothLanguageModels('career');
+      
+      // Try English first
+      try {
+        jobDetails = await bothModels.en.findById(candidateResume.jobId)
+          .select('title department location lang');
+      } catch (error) {
+        console.log('Error finding job in English collection:', error.message);
+      }
+      
+      // If not found, try Arabic
+      if (!jobDetails) {
+        try {
+          jobDetails = await bothModels.ar.findById(candidateResume.jobId)
+            .select('title department location lang');
+        } catch (error) {
+          console.log('Error finding job in Arabic collection:', error.message);
+        }
+      }
+    } catch (error) {
+      console.log('Error enhancing candidate with job details:', error.message);
+    }
+
+    const enhancedCandidate = {
+      ...candidateResume.toObject(),
+      jobDetails: jobDetails ? {
+        title: jobDetails.title,
+        department: jobDetails.department,
+        location: jobDetails.location,
+        lang: jobDetails.lang
+      } : null
+    };
     
     res.json({
       success: true,
       message: 'Status updated successfully',
-      data: candidateResume
+      data: enhancedCandidate
     });
     
   } catch (error) {

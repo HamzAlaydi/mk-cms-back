@@ -9,6 +9,7 @@ const fileSchema = new mongoose.Schema({
 }, { _id: false });
 
 const careerSchema = new mongoose.Schema({
+  translationGroupId: { type: String, index: true },
   title: { type: String, required: true, trim: true },
   summary: { type: String, required: true, trim: true },
   description: { type: String, required: true },
@@ -27,6 +28,7 @@ const careerSchema = new mongoose.Schema({
   isActive: { type: Boolean, default: true },
   applicationDeadline: { type: Date },
   image: fileSchema,
+  lang: { type: String, enum: ['en', 'ar'], default: 'en', index: true },
 }, { timestamps: true });
 
 module.exports = mongoose.model('Career', careerSchema); 

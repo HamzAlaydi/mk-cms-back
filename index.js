@@ -16,6 +16,8 @@ const careerRoutes = require('./routes/careers');
 const pressRoutes = require('./routes/press');
 const uploadRoutes = require('./routes/upload');
 const candidateRoutes = require('./routes/candidates');
+const companiesRoutes = require('./routes/companies');
+const fileSharingRoutes = require('./routes/fileSharing');
 
 const app = express();
 
@@ -45,6 +47,8 @@ app.use('/api/careers', careerRoutes);
 app.use('/api/press', pressRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/candidates', candidateRoutes);
+app.use('/api/companies', companiesRoutes);
+app.use('/api/filesharing', fileSharingRoutes);
 
 // Log mounted routes for debugging
 console.log('Mounted routes:');
@@ -58,6 +62,8 @@ console.log('- /api/careers');
 console.log('- /api/press');
 console.log('- /api/upload');
 console.log('- /api/candidates');
+console.log('- /api/companies');
+console.log('- /api/filesharing');
 
 app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
 

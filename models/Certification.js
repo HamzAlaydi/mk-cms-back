@@ -20,6 +20,7 @@ const certificationSchema = new mongoose.Schema({
   features: [{ type: String }],
   image: fileSchema,
   documents: [fileSchema],
+  lang: { type: String, enum: ['en', 'ar'], default: 'en', index: true },
 }, { timestamps: true });
 
 module.exports = mongoose.model('Certification', certificationSchema); 

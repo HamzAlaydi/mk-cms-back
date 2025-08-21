@@ -18,6 +18,7 @@ const newsSchema = new mongoose.Schema({
   tags: [{ type: String }],
   image: fileSchema,
   documents: [fileSchema],
+  lang: { type: String, enum: ['en', 'ar'], default: 'en', index: true },
 }, { timestamps: true });
 
 module.exports = mongoose.model('News', newsSchema); 

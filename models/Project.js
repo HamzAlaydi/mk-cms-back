@@ -35,6 +35,7 @@ const projectSchema = new mongoose.Schema({
   documents: [{ type: mongoose.Schema.Types.Mixed }],
   keyMetrics: [{ type: String }],
   awards: [{ type: String }],
+  lang: { type: String, enum: ['en', 'ar'], default: 'en', index: true },
 }, { timestamps: true });
 
 module.exports = mongoose.model('Project', projectSchema); 

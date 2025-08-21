@@ -1,6 +1,7 @@
 const express = require('express');
 const auth = require('../middleware/auth');
 const awardController = require('../controllers/awardsController');
+const { allowAllButRestrictDelete } = require('../middleware/roles');
 
 const router = express.Router();
 
@@ -10,7 +11,7 @@ router.get('/admin/:id', auth, awardController.getOneAdmin);
 router.get('/public/:id', awardController.getOnePublic);
 router.post('/', auth, awardController.create);
 router.patch('/:id', auth, awardController.update);
-router.delete('/:id', auth, awardController.remove);
+router.delete('/:id', auth, allowAllButRestrictDelete, awardController.remove);
 router.get('/stats/admin', auth, awardController.getStats);
 
 module.exports = router; 
