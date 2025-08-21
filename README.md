@@ -2,6 +2,12 @@
 
 A high-performance Node.js backend API for the MK Group website with MongoDB, AWS S3 integration, and comprehensive admin functionality.
 
+## 🚀 Deployment Options
+
+- **Local Development**: Run locally with `npm run dev`
+- **Vercel**: Deploy to Vercel with `npm run deploy:vercel` or use the deployment scripts
+- **Other Platforms**: Compatible with any Node.js hosting platform
+
 ## Features
 
 - **Authentication**: JWT-based admin authentication
@@ -52,6 +58,9 @@ NODE_ENV=development
 # File Upload Limits
 MAX_FILE_SIZE=100MB
 MAX_VIDEO_SIZE=500MB
+
+# Frontend URL (for CORS)
+FRONTEND_URL=http://localhost:3000
 ```
 
 3. **Start the server**
@@ -61,6 +70,52 @@ npm run dev
 
 # Production
 npm start
+
+## 🚀 Deploy to Vercel
+
+### Quick Deployment
+
+1. **Install Vercel CLI**
+```bash
+npm install -g vercel
+```
+
+2. **Deploy using script**
+```bash
+# Windows
+deploy-vercel.bat
+
+# Linux/Mac
+chmod +x deploy-vercel.sh
+./deploy-vercel.sh
+```
+
+3. **Manual deployment**
+```bash
+vercel login
+vercel --prod
+```
+
+### Environment Variables Setup
+
+Before deploying, set up your environment variables in Vercel:
+
+```bash
+# Via CLI
+vercel env add MONGODB_URI
+vercel env add JWT_SECRET
+vercel env add AWS_ACCESS_KEY_ID
+vercel env add AWS_SECRET_ACCESS_KEY
+vercel env add AWS_REGION
+vercel env add AWS_S3_BUCKET
+vercel env add NODE_ENV
+vercel env add ADMIN_EMAIL
+vercel env add ADMIN_PASSWORD
+vercel env add ADMIN_NAME
+vercel env add FRONTEND_URL
+```
+
+**Note**: For detailed deployment instructions, see [VERCEL_DEPLOYMENT.md](./VERCEL_DEPLOYMENT.md)
 ```
 
 ## API Endpoints

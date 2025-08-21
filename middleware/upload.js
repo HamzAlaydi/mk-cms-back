@@ -3,7 +3,7 @@ const multer = require('multer');
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: {
-    fileSize: parseInt(process.env.MAX_FILE_SIZE) || 100 * 1024 * 1024, // 100MB default
+    fileSize: parseInt(process.env.MAX_FILE_SIZE) || (process.env.VERCEL ? 4.5 * 1024 * 1024 : 100 * 1024 * 1024), // 4.5MB for Vercel, 100MB default
   },
   fileFilter: (req, file, cb) => {
     const allowedMimes = [

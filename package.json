@@ -8,6 +8,7 @@
     "dev": "nodemon index.js",
     "setup": "node setup-env.js",
     "init-admin": "node init-admin.js",
+    "vercel-build": "echo 'Build completed'",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
@@ -42,7 +43,8 @@
     "api",
     "admin",
     "file-upload",
-    "aws-s3"
+    "aws-s3",
+    "vercel"
   ],
   "author": "MK Group",
   "license": "proprietary"
